@@ -186,8 +186,12 @@ class MyWindow(AcrylicWindow):
         # 从UI中获取API密钥和API URL
 
         if self.ui.PasswordLineEdit.text() == "" or self.ui.LineEdit_2.text() == "":
-            self.api_key = DEFAULT_API_KEY
-            self.api_url = DEFAULT_API_URL
+            if DEFAULT_API_KEY != "":
+                if DEFAULT_API_URL !="":
+                    self.api_url = DEFAULT_API_URL
+                self.api_key = DEFAULT_API_KEY
+            self.createWarningInfoBar("请输入Api_Key", "System", 4000)
+            return
         else:
             self.api_key = self.ui.PasswordLineEdit.text()
             self.api_url = self.ui.LineEdit_2.text()
