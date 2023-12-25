@@ -37,7 +37,7 @@
      <item>
       <widget class="HyperlinkLabel" name="HyperlinkLabel">
        <property name="text">
-        <string>By Canf</string>
+        <string>              By Canf</string>
        </property>
       </widget>
      </item>
@@ -154,8 +154,11 @@
      </item>
      <item>
       <widget class="HyperlinkLabel" name="HyperlinkLabel_2">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
        <property name="text">
-        <string>刷新主题</string>
+        <string>              更新地址</string>
        </property>
       </widget>
      </item>
@@ -191,13 +194,10 @@
    </item>
    <item row="1" column="1">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="0">
-      <widget class="TextEdit" name="TextEdit_2">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>87</height>
-        </size>
+     <item row="0" column="0" colspan="2">
+      <widget class="TextEdit" name="TextEdit">
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -214,21 +214,30 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0" colspan="2">
-      <widget class="TextEdit" name="TextEdit">
-       <property name="readOnly">
-        <bool>true</bool>
+     <item row="1" column="0">
+      <widget class="TextEdit" name="TextEdit_2">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>87</height>
+        </size>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item row="0" column="1">
-    <widget class="BodyLabel" name="BodyLabel">
-     <property name="text">
-      <string/>
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-    </widget>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
@@ -251,11 +260,6 @@
   </customwidget>
   <customwidget>
    <class>CaptionLabel</class>
-   <extends>QLabel</extends>
-   <header>qfluentwidgets</header>
-  </customwidget>
-  <customwidget>
-   <class>BodyLabel</class>
    <extends>QLabel</extends>
    <header>qfluentwidgets</header>
   </customwidget>

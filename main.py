@@ -3,6 +3,8 @@ import json
 import re
 import sys
 import time
+import webbrowser
+
 from qframelesswindow import AcrylicWindow
 import requests
 from PyQt5.QtCore import QPoint, Qt, QTimer
@@ -15,16 +17,12 @@ from qfluentwidgets import setThemeColor, FluentThemeColor
 from qfluentwidgets.window.stacked_widget import StackedWidget
 
 import form
+
 global z, tt
-DEFAULT_API_URL = "sk-"
-DEFAULT_API_KEY = "https://api.openai.com/v1/chat/completions"
-#当用户未输入Api或Url时将使用默认的Api或Url
-
-def extract_url(ai_response):
-    url_pattern = re.compile(r'https?://[^\s]+')
-    urls = url_pattern.findall(ai_response)
-    return urls[0] if urls else None
-
+DEFAULT_API_URL = ""
+DEFAULT_API_KEY = ""
+API_URL=""
+API_KEY=""
 
 def check_network():
     try:
@@ -67,7 +65,7 @@ class MyWindow(AcrylicWindow):
         self.ui.LineEdit_2.setClearButtonEnabled(True)
         self.ui.LineEdit_3.setClearButtonEnabled(True)
         self.ui.PushButton_2.clicked.connect(self.showyiyanTip)
-        self.ui.HyperlinkLabel_2.clicked.connect(self.uidark)
+        self.ui.HyperlinkLabel_2.clicked.connect(self.updataurl)
         self.ui.PushButton_3.clicked.connect(self.about)
         self.ui.PushButton_4.clicked.connect(self.clear)
         self.ui.PushButton.clicked.connect(self.send_message)
@@ -79,14 +77,14 @@ class MyWindow(AcrylicWindow):
         self.createseccess("特效 Areo 开启成功", "特效管理器")
         setTheme(Theme.AUTO)
         self.homeInterface = QStackedWidget(self, objectName='homeInterface')
-        items = ['gpt-3.5-turbo', 'gpt-4', 'gemini-pro-v', 'gpt-3.5-turbo-16k-0613', 'gpt-4-all'] #可供用户选择的Model列表
+        items = ['gpt-3.5-turbo', 'gpt-4', 'gemini-pro-v', 'gpt-3.5-turbo-16k-0613', 'gpt-4-all']
 
         self.ui.ComboBox.addItems(items)
         self.ui.ComboBox.currentTextChanged.connect(self.commboxchange)
         self.conversation = []
 
         self.CustomInfoBar("公告:",
-                           "\n本软件每次发送信息都需要时间供Chat GPT反应，期间肯定会无响应，此为正常情况.\n只需耐心等待即可😎\n所有效果都会与暗黑模式冲突，请关闭暗黑模式在开启特效！",
+                           "\n本软件每次发送信息都需要时间供Chat GPT反应，期间肯定会无响应，此为正常情况.\n只需耐心等待即可😎",
                            FluentIcon.CHAT)
         self.ui.PushButton_5.clicked.connect(self.save_config)
         self.load_config()
@@ -102,11 +100,12 @@ class MyWindow(AcrylicWindow):
                            FluentIcon.CODE)
 
     def commboxchange(self):
-        if self.ui.ComboBox.text() != "gpt-3.5-turbo" or self.ui.ComboBox.text() != "gemini-pro-v":
-            self.createWarningInfoBar("注意，您使用的是付费模型，请注意额度", "System", 4000)
+        if self.ui.ComboBox.text() != "gpt-3.5-turbo" :
+            if self.ui.ComboBox.text() != "gemini-pro-v":
+                self.createWarningInfoBar("注意，您使用的是付费模型，请注意额度", "System", 4000)
 
     def createaboutInfoBar(self):
-        content = "作者：XIN \n  本软件遵循 GPL V3.0协议  \n版权所有（C）2023 XIN \n注：\n  本程序为自由软件，在自由软件联盟发布的GNU通用公共许可协议的约束下，你可以对其进行修改再发布。希望发布的这款程序有用，但不保证它有经济价值和适合特定用途。详情参见GNU通用公共许可协议。  "
+        content = "作者：XIN  QQ: 1324435230\n  本软件遵循 GPL V3.0协议  \n版权所有（C）2023 XIN \n注：\n  本程序为自由软件，在自由软件联盟发布的GNU通用公共许可协议的约束下，你可以对其进行修改再发布。我们希望发布的这款程序有用，但不保证它有经济价值和适合特定用途。详情参见GNU通用公共许可协议。  "
         w = InfoBar(
             icon=InfoBarIcon.INFORMATION,
             title='关于',
@@ -143,8 +142,8 @@ class MyWindow(AcrylicWindow):
         try:
             with open("config.json", "r") as config_file:
                 config = json.load(config_file)
-                self.api_url = config.get("api_url", DEFAULT_API_URL)
-                self.api_key = config.get("api_key", DEFAULT_API_KEY)
+                self.api_url = config.get("api_url", API_URL)
+                self.api_key = config.get("api_key", API_KEY)
                 # 使用加载的值更新UI
                 self.ui.LineEdit_2.setText(self.api_url)
                 self.ui.PasswordLineEdit.setText(self.api_key)
@@ -186,11 +185,8 @@ class MyWindow(AcrylicWindow):
         # 从UI中获取API密钥和API URL
 
         if self.ui.PasswordLineEdit.text() == "" or self.ui.LineEdit_2.text() == "":
-            if DEFAULT_API_KEY != "":
-                if DEFAULT_API_URL !="":
-                    self.api_url = DEFAULT_API_URL
-                self.api_key = DEFAULT_API_KEY
-            self.createWarningInfoBar("请输入Api_Key", "System", 4000)
+            self.api_url = DEFAULT_API_URL
+            self.api_key = DEFAULT_API_KEY
             return
         else:
             self.api_key = self.ui.PasswordLineEdit.text()
@@ -214,12 +210,8 @@ class MyWindow(AcrylicWindow):
                 self.ui.TextEdit_2.clear()
                 self.conversation.append({"role": "assistant", "content": ai_response})
                 self.ui.TextEdit.append(f"\n用户: {user_question}")
-                if extract_url(ai_response) != None:
-                    self.ui.TextEdit.append(f"\nAI: {ai_response}")
-                    text_edit = self.ui.TextEdit()
-                    text_edit.insertHtml(f'<a href="{ai_response}">{ai_response}</a><br>')
-                else:
-                    self.ui.TextEdit.append(f"\nAI: {ai_response}")
+                self.ui.TextEdit.append(f"\nAI: {ai_response}")
+
             else:
                 self.createWarningInfoBar("请检查您的网络连接!", "网络管理程序", 4000)
         except Exception as e:
@@ -232,8 +224,8 @@ class MyWindow(AcrylicWindow):
     def about(self):
         self.createaboutInfoBar()
 
-    def uidark(self):
-        setTheme(Theme.AUTO)
+    def updataurl(self,url):
+        webbrowser.open_new_tab("https://github.com/xin1201946/PythonChatGPT ")
 
     # setTheme(Theme.DARK)
     # self.setStyleSheet("Demo{background: rgb(32, 32, 32)}")
