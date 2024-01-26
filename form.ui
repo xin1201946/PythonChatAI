@@ -1,245 +1,297 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="CardWidget" name="Form">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1093</width>
-    <height>615</height>
+    <width>748</width>
+    <height>589</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ChatGPT</string>
+   <string>MainWindow</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>ico.ico</normaloff>ico.ico</iconset>
-  </property>
-  <layout class="QFormLayout" name="formLayout">
-   <item row="1" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="TitleLabel" name="TitleLabel">
-       <property name="font">
-        <font>
-         <family>Segoe UI</family>
-         <pointsize>16</pointsize>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>ChatGPT_Canf</string>
-       </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_4">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>ChatAI For macOS</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>By Canf</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Tips</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="minimumSize">
+       <size>
+        <width>681</width>
+        <height>441</height>
+       </size>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>主页</string>
+       </attribute>
+       <layout class="QFormLayout" name="formLayout">
+        <item row="0" column="0" colspan="2">
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="1" colspan="2">
+           <widget class="TextEdit" name="TextEdit">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>575</width>
+              <height>236</height>
+             </size>
+            </property>
+            <property name="cursor" stdset="0">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::DefaultContextMenu</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="TextEdit" name="TextEdit_2">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>51</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>51</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="CommandBar" name="CommandBar"/>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="pushButton">
+            <property name="maximumSize">
+             <size>
+              <width>75</width>
+              <height>61</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>发送</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
-     </item>
-     <item>
-      <widget class="HyperlinkLabel" name="HyperlinkLabel">
-       <property name="text">
-        <string>              By Canf</string>
-       </property>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>设置</string>
+       </attribute>
+       <layout class="QFormLayout" name="formLayout_4">
+        <item row="1" column="0" colspan="2">
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="8" column="0">
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="CaptionLabel" name="CaptionLabel_3">
+            <property name="text">
+             <string>厂商</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="PasswordLineEdit" name="PasswordLineEdit"/>
+          </item>
+          <item row="2" column="1">
+           <widget class="EditableComboBox" name="EditableComboBox"/>
+          </item>
+          <item row="7" column="1">
+           <widget class="ComboBox" name="ComboBox"/>
+          </item>
+          <item row="7" column="0">
+           <widget class="ComboBox" name="ComboBox_2"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="CaptionLabel" name="CaptionLabel_2">
+            <property name="text">
+             <string>API Url</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="CaptionLabel" name="CaptionLabel_4">
+            <property name="text">
+             <string>模型</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="StrongBodyLabel" name="StrongBodyLabel_3">
+            <property name="text">
+             <string>AI 模型</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="CaptionLabel" name="CaptionLabel">
+            <property name="text">
+             <string>API Key</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="StrongBodyLabel" name="StrongBodyLabel_2">
+            <property name="text">
+             <string>面具</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="TextEdit" name="TextEdit_3"/>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="StrongBodyLabel" name="StrongBodyLabel">
+            <property name="text">
+             <string>API 设置</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="3" column="0">
+         <widget class="QPushButton" name="pushButton_2">
+          <property name="text">
+           <string>保存</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
-     </item>
-     <item>
-      <widget class="CaptionLabel" name="CaptionLabel">
-       <property name="maximumSize">
-        <size>
-         <width>142</width>
-         <height>73</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>API Key</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="PasswordLineEdit" name="PasswordLineEdit">
-       <property name="minimumSize">
-        <size>
-         <width>158</width>
-         <height>33</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>158</width>
-         <height>33</height>
-        </size>
-       </property>
-       <property name="passwordVisible">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="CaptionLabel" name="CaptionLabel_2">
-       <property name="maximumSize">
-        <size>
-         <width>142</width>
-         <height>72</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>API Url</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="LineEdit" name="LineEdit_2">
-       <property name="maximumSize">
-        <size>
-         <width>158</width>
-         <height>33</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="CaptionLabel" name="CaptionLabel_3">
-       <property name="maximumSize">
-        <size>
-         <width>142</width>
-         <height>73</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>System Role</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="LineEdit" name="LineEdit_3">
-       <property name="maximumSize">
-        <size>
-         <width>158</width>
-         <height>33</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="CaptionLabel" name="CaptionLabel_5">
-       <property name="maximumSize">
-        <size>
-         <width>142</width>
-         <height>73</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>GPT模型</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="ComboBox" name="ComboBox">
-       <property name="text">
-        <string>gpt-3.5-turbo</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="HyperlinkLabel" name="HyperlinkLabel_2">
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>              更新地址</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="PushButton" name="PushButton_4">
-       <property name="text">
-        <string>清空</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="PushButton" name="PushButton_5">
-       <property name="text">
-        <string>保存设置</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="PushButton" name="PushButton_2">
-       <property name="text">
-        <string>一言</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="PushButton" name="PushButton_3">
-       <property name="text">
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
         <string>关于</string>
-       </property>
+       </attribute>
+       <layout class="QFormLayout" name="formLayout_3">
+        <item row="0" column="0" colspan="2">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="TitleLabel" name="TitleLabel">
+            <property name="text">
+             <string>关于 </string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="TextEdit" name="TextEdit_4">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="1">
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0" colspan="2">
-      <widget class="TextEdit" name="TextEdit">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="PushButton" name="PushButton">
-       <property name="minimumSize">
-        <size>
-         <width>54</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>发送</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="TextEdit" name="TextEdit_2">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>87</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="1">
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-  </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>748</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+   </widget>
+   <addaction name="menuAbout"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
   <customwidget>
@@ -248,29 +300,18 @@
    <header>qfluentwidgets</header>
   </customwidget>
   <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>qfluentwidgets</header>
-  </customwidget>
-  <customwidget>
-   <class>CardWidget</class>
-   <extends>QFrame</extends>
-   <header>qfluentwidgets</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>CaptionLabel</class>
+   <extends>QLabel</extends>
+   <header>qfluentwidgets</header>
+  </customwidget>
+  <customwidget>
+   <class>StrongBodyLabel</class>
    <extends>QLabel</extends>
    <header>qfluentwidgets</header>
   </customwidget>
   <customwidget>
    <class>TitleLabel</class>
    <extends>QLabel</extends>
-   <header>qfluentwidgets</header>
-  </customwidget>
-  <customwidget>
-   <class>HyperlinkLabel</class>
-   <extends>QPushButton</extends>
    <header>qfluentwidgets</header>
   </customwidget>
   <customwidget>
@@ -286,6 +327,17 @@
   <customwidget>
    <class>TextEdit</class>
    <extends>QTextEdit</extends>
+   <header>qfluentwidgets</header>
+  </customwidget>
+  <customwidget>
+   <class>CommandBar</class>
+   <extends>QFrame</extends>
+   <header>qfluentwidgets</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>EditableComboBox</class>
+   <extends>LineEdit</extends>
    <header>qfluentwidgets</header>
   </customwidget>
  </customwidgets>
