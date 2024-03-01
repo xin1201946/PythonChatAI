@@ -7,14 +7,21 @@
 ## 使用方式
 
 - 下载源码编译 
-
 - 或者 从Release 下载旧版本的 Main.7z 压缩包
 
   - 解压到任意位置
-
   - 运行/main/main.exe
-
   - enjoy！ 😂
+
+## 屏幕截图
+
+主页：
+
+![HomePage](ScreenShort\HomePage.png)
+
+设置页：
+
+![settingsPage](ScreenShort\settingsPage.png)
 
 ## 相关项目地址
 
@@ -27,10 +34,6 @@
 
 
 # **二次开发指南**
-
-## 目录
-
-[TOC]
 
 
 
@@ -122,7 +125,7 @@
 
 ### Worker类
 
-本类并非子界面，本类用于实现与Open AI交互信息。
+本类并不是子界面，本类用于实现与Open AI交互信息。
 
 ## 插件加载
 
