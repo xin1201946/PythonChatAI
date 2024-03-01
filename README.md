@@ -170,7 +170,7 @@ def loadplugin(self):
           continue
 ```
 
-由代码可知模块要求：
+插件要求：
 
 - 插件必须在 APPPATH / Plugin 文件夹下
 
@@ -257,4 +257,4 @@ def loadplugin(self):
 >
 > ​	@IDE : PyCharm 
 >
-> ​	注：本软件遵循 LGPLv3协议，请在使用、修改或分发时遵守该协议条款。
+> ​	注：本软件遵循 GPLv3协议，请在使用、修改或分发时遵守该协议条款。
