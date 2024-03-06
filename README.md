@@ -17,7 +17,7 @@
 
 主页：
 
-![HomePage](ScreenShort\HomePage.png)
+![HomePage](ScreenShort\\HomePage.png)
 
 设置页：
 
