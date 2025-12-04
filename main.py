@@ -50,6 +50,10 @@ from plugin_manager_ui import PluginManagerUI
 
 global yytitle, yyinfo
 
+# Configuration constants
+DEFAULT_THREAD_POOL_WORKERS = 4  # Number of worker threads for background tasks
+WORKER_CANCEL_TIMEOUT_MS = 1000  # Timeout in milliseconds for worker thread cancellation
+
 temperatureselected = 0.2
 modelselected = ''
 API_URL = ""  # 用户自己写的或者从文件读取的
@@ -153,7 +157,7 @@ class Window(FluentWindow):
 		log_file = logger.add('ChatAI.log')
 		
 		# Initialize thread pool for background tasks
-		self._executor = ThreadPoolExecutor(max_workers=4)
+		self._executor = ThreadPoolExecutor(max_workers=DEFAULT_THREAD_POOL_WORKERS)
 		
 		# Start network check in thread pool (non-blocking)
 		self._executor.submit(self._check_network_async)
@@ -421,7 +425,7 @@ class MyWindow(QFrame):
 				# Cancel previous worker if still running
 				if self.worker is not None and self.worker.isRunning():
 					self.worker.cancel()
-					self.worker.wait(1000)  # Wait up to 1 second for graceful shutdown
+					self.worker.wait(WORKER_CANCEL_TIMEOUT_MS)  # Wait for graceful shutdown
 					if self.worker.isRunning():
 						self.worker.terminate()
 				

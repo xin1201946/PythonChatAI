@@ -10,6 +10,10 @@ Plugin Manager UI module for ChatAI.
 Provides a user interface for managing plugins.
 """
 
+import os
+import subprocess
+import platform
+
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtWidgets import (
     QFrame, QVBoxLayout, QHBoxLayout, QWidget,
@@ -305,10 +309,6 @@ class PluginManagerUI(QFrame):
         
     def _open_plugin_dir(self):
         """Open plugin directory in file explorer."""
-        import os
-        import subprocess
-        import platform
-        
         plugin_dir = self.plugin_manager.plugin_dir
         if platform.system() == 'Windows':
             os.startfile(plugin_dir)

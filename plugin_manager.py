@@ -97,13 +97,15 @@ class PluginManager(QObject):
     loading_progress = pyqtSignal(int, int)  # current, total
     
     CONFIG_FILE = './plugin_config.json'
+    DEFAULT_MAX_WORKERS = 4  # Default number of worker threads for plugin loading
     
-    def __init__(self, plugin_dir: str = 'plugin', parent=None):
+    def __init__(self, plugin_dir: str = 'plugin', max_workers: int = None, parent=None):
         super().__init__(parent)
         self.plugin_dir = os.path.abspath(plugin_dir)
         self.plugins: Dict[str, PluginInfo] = {}
         self.plugin_instances: Dict[str, Any] = {}
-        self._executor = ThreadPoolExecutor(max_workers=4)
+        self._max_workers = max_workers or self.DEFAULT_MAX_WORKERS
+        self._executor = ThreadPoolExecutor(max_workers=self._max_workers)
         self._loader_threads: List[PluginLoaderThread] = []
         self._pending_loads = 0
         self._load_config()
