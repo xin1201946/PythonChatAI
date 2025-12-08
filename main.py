@@ -1,4 +1,5 @@
 import importlib
+from concurrent.futures import ThreadPoolExecutor
 
 import cv2
 from fake_useragent import UserAgent
@@ -44,8 +45,14 @@ from qfluentwidgets.window.stacked_widget import StackedWidget
 from importlib import import_module
 import ChatForm
 import setting
+from plugin_manager import PluginManager
+from plugin_manager_ui import PluginManagerUI
 
 global yytitle, yyinfo
+
+# Configuration constants
+DEFAULT_THREAD_POOL_WORKERS = 4  # Number of worker threads for background tasks
+WORKER_CANCEL_TIMEOUT_MS = 1000  # Timeout in milliseconds for worker thread cancellation
 
 temperatureselected = 0.2
 modelselected = ''
@@ -148,18 +155,40 @@ class Window(FluentWindow):
 		self.splashScreen.setIconSize(QSize(102, 102))
 
 		log_file = logger.add('ChatAI.log')
-		network_thread = NetworkCheckerThread()
-		network_thread.start()  # 网络检测线程
+		
+		# Initialize thread pool for background tasks
+		self._executor = ThreadPoolExecutor(max_workers=DEFAULT_THREAD_POOL_WORKERS)
+		
+		# Start network check in thread pool (non-blocking)
+		self._executor.submit(self._check_network_async)
+		
 		self.stateTooltip = None
 		self.show()
-		self.load_config()
-		yiyan('i')
+		
+		# Load config asynchronously
+		self._executor.submit(self._load_config_async)
+		
+		# Load yiyan asynchronously
+		self._executor.submit(self._load_yiyan_async)
+		
 		self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
 		setThemeColor(FluentThemeColor.ORANGE_BRIGHT.color())
 		self.windowEffect.setAeroEffect(MyWindow.winId(self))
+		
 		# 创建子界面
 		self.home = MyWindow('主页', self)
 		self.SETTING = SETTINGS('关于', self)
+		
+		# Initialize Plugin Manager
+		self.plugin_manager = PluginManager('plugin', self)
+		self.plugin_manager_ui = PluginManagerUI(self.plugin_manager, self)
+		
+		# Connect plugin manager signals
+		self.plugin_manager.plugin_loaded.connect(self._on_plugin_loaded)
+		self.plugin_manager.all_plugins_loaded.connect(self._on_all_plugins_loaded)
+		self.plugin_manager.plugin_error.connect(self._on_plugin_error)
+		self.plugin_manager.loading_progress.connect(self._on_plugin_loading_progress)
+		
 		self.navigationInterface.addWidget(
 			routeKey='avatar',
 			widget=NavigationAvatarWidget('CanFeng', 'image/MAIN.png'),
@@ -171,15 +200,61 @@ class Window(FluentWindow):
 		self.initNavigation()
 		self.initWindow()
 
-		if network == "true":
-			self.loadplugin()
-		elif network == "false":
-			self.showDialog('请检查网络连接，注意你的VPN哟~~', '注意')
-			# create other subinterfaces
+		# Load plugins asynchronously
+		self.plugin_manager.load_plugins_async()
+		
 		self.createSubInterface()
 
 		# close splash screen
 		self.splashScreen.finish()
+	
+	def _check_network_async(self):
+		"""Check network asynchronously."""
+		global network
+		try:
+			response = requests.get("https://cn.bing.com", timeout=5)
+			response.raise_for_status()
+			network = "true"
+		except (requests.exceptions.ConnectionError, requests.Timeout, requests.HTTPError):
+			network = "false"
+			# Show dialog on main thread
+			QTimer.singleShot(0, lambda: self.showDialog('请检查网络连接，注意你的VPN哟~~', '注意'))
+	
+	def _load_config_async(self):
+		"""Load config asynchronously."""
+		# Delay config loading to not block UI
+		QTimer.singleShot(100, self.load_config)
+	
+	def _load_yiyan_async(self):
+		"""Load yiyan asynchronously."""
+		try:
+			yiyan('i')
+		except Exception as e:
+			logger.warning(f"Failed to load yiyan: {e}")
+	
+	def _on_plugin_loaded(self, plugin_info):
+		"""Handle plugin loaded event."""
+		if plugin_info.enabled:
+			try:
+				instance = self.plugin_manager.create_plugin_instance(plugin_info, self)
+				if instance:
+					self.addSubInterface(instance, plugin_info.icon, plugin_info.name, NavigationItemPosition.SCROLL)
+			except Exception as e:
+				logger.error(f"Failed to add plugin interface {plugin_info.name}: {e}")
+	
+	def _on_all_plugins_loaded(self):
+		"""Handle all plugins loaded event."""
+		logger.info("All plugins loaded")
+		self.createInfoInfoBar("所有插件已加载完成", "插件加载", InfoBarIcon.SUCCESS, True, 3000)
+	
+	def _on_plugin_error(self, plugin_name, error):
+		"""Handle plugin error."""
+		logger.error(f"Plugin error {plugin_name}: {error}")
+		self.createInfoInfoBar(f"插件 {plugin_name} 加载失败: {error}", "插件错误", InfoBarIcon.ERROR, True, 5000)
+	
+	def _on_plugin_loading_progress(self, current, total):
+		"""Handle plugin loading progress."""
+		logger.debug(f"Loading plugins: {current}/{total}")
 
 	def createSubInterface(self):
 		loop = QEventLoop(self)
@@ -192,6 +267,7 @@ class Window(FluentWindow):
 
 	def initNavigation(self):
 		self.addSubInterface(self.home, FluentIcon.HOME, '主页', NavigationItemPosition.TOP)
+		self.addSubInterface(self.plugin_manager_ui, FluentIcon.APPLICATION, "插件管理", NavigationItemPosition.BOTTOM)
 		self.addSubInterface(self.SETTING, FluentIcon.SETTING, "设置", NavigationItemPosition.BOTTOM)
 
 	def initWindow(self):
@@ -246,42 +322,15 @@ class Window(FluentWindow):
 
 	@logger.catch
 	def loadplugin(self):
-		folder_path = 'plugin'  # 这是一个相对路径，根据实际情况修改
-
-		if not os.path.exists(folder_path):
-			os.makedirs(folder_path)
-		folder_path = 'plugin/download/'  # 这是一个相对路径，根据实际情况修改
-
-		if not os.path.exists(folder_path):
-			os.makedirs(folder_path)
-		# 插件目录路径
-		plugin_dir = os.path.abspath(os.path.join(os.getcwd(), 'plugin\\'))
-		if plugin_dir not in sys.path:
-			sys.path.append(plugin_dir)
-		# 获取插件目录下所有 .py 文件的绝对路径
-		py_files = glob.glob(os.path.join(plugin_dir, '*.py'))
-
-		# 遍历每个 .py 文件
-		for py_file in py_files:
-			# 跳过 __init__.py 之类的特殊模块
-			if py_file.endswith("__init__.py"):
-				continue
-
-			# 导入模块，例如：如果文件名为 plugin/sub.py，则导入 sub 模块
-			module_name = os.path.splitext(os.path.basename(py_file))[0]
-			# 去除插件目录部分，仅保留模块名（根据实际情况调整）
-			module_name = module_name.replace(f"{os.path.basename(plugin_dir)}.", '')
-			module = importlib.import_module('.' + module_name, package='plugin')
-			module_name = module_name + ".py"
-			if hasattr(module, 'MAIN') and isinstance(getattr(module, 'MAIN'), type):
-				app_name = getattr(module, '_APPNAME')
-				app_version = getattr(module, '_APPVERSION')
-				app_icon = getattr(module, '_APPICON')
-
-				self.SubWindowClass = module.MAIN(app_name, self)
-				self.addSubInterface(self.SubWindowClass, app_icon, app_name, NavigationItemPosition.SCROLL)
-			else:
-				continue
+		"""
+		Legacy plugin loading method. 
+		Deprecated: Use plugin_manager.load_plugins_async() instead.
+		Kept for backward compatibility.
+		"""
+		logger.warning("loadplugin() is deprecated. Use plugin_manager.load_plugins_async() instead.")
+		# The plugin loading is now handled by PluginManager
+		# This method is kept for backward compatibility
+		pass
 
 	def loadtip(self, title, message, donetitle):
 		if self.stateTooltip:
@@ -322,6 +371,18 @@ class Window(FluentWindow):
 		modelselected = config_data.get("model", modelselected)
 		historyselected = config_data.get("history", historyselected)
 
+	def closeEvent(self, event):
+		"""Clean up resources when closing the application."""
+		# Cleanup plugin manager
+		if hasattr(self, 'plugin_manager'):
+			self.plugin_manager.cleanup()
+		
+		# Shutdown thread pool
+		if hasattr(self, '_executor'):
+			self._executor.shutdown(wait=False)
+		
+		super().closeEvent(event)
+
 
 def yiyan(type):
 	global yytitle, yyinfo
@@ -348,6 +409,7 @@ class MyWindow(QFrame):
 		self.conversation = []
 		self.conversation.append({"role": "system", "content": "您回答时尽量回复中文，并加上表情"})
 		self.conversation.append({"role": "assistant", "content": "有什么可以帮助您的吗？[开心][疑问]"})
+		self.worker = None
 
 	def updataurl(self):
 		webbrowser.open_new_tab("https://github.com/xin1201946/PythonChatGPT")
@@ -360,9 +422,14 @@ class MyWindow(QFrame):
 			return
 		try:
 			if network == "true":
-				self.worker = Worker(self.ui, self.conversation, user_question, API_KEY, API_URL)
+				# Cancel previous worker if still running
 				if self.worker is not None and self.worker.isRunning():
-					self.worker.terminate()  # Terminate the old worker thread if it's still running
+					self.worker.cancel()
+					self.worker.wait(WORKER_CANCEL_TIMEOUT_MS)  # Wait for graceful shutdown
+					if self.worker.isRunning():
+						self.worker.terminate()
+				
+				self.worker = Worker(self.ui, self.conversation, user_question, API_KEY, API_URL)
 				self.ui.TextEdit.append("\n" + os.getlogin() + ": " + self.ui.TextEdit_2.toPlainText())
 				self.ui.TextEdit_2.clear()
 				self.ui.TextEdit.moveCursor(QtGui.QTextCursor.MoveOperation.End)
@@ -465,25 +532,42 @@ class SETTINGS(QFrame):
 
 
 
-class Worker(QThread):  ##使用另一个线程获取AI返回的信息，让用户即使网络环境差，也不会应用卡死
+class Worker(QThread):
+	"""
+	Worker thread for AI chat requests.
+	Uses QThread for seamless Qt integration with proper cancellation support.
+	"""
 	textRead = pyqtSignal(str)
 	textReady = pyqtSignal(str)
 	errorOccurred = pyqtSignal(str)
+	finished_signal = pyqtSignal()
 
 	def __init__(self, ui, conversation, user_question, api_key, api_url):
-		QThread.__init__(self)
+		super().__init__()
 		self.ui = ui
 		self.conversation = conversation
 		self.user_question = user_question
 		self.api_key = api_key
 		self.api_url = api_url
+		self._is_cancelled = False
+
+	def cancel(self):
+		"""Request cancellation of the worker."""
+		self._is_cancelled = True
 
 	@logger.catch
 	def run(self):
 		try:
+			if self._is_cancelled:
+				return
+				
 			if len(self.conversation) >= historyselected:
 				self.conversation.pop(0)
 			self.conversation.append({"role": "user", "content": self.user_question})
+			
+			if self._is_cancelled:
+				return
+				
 			client = OpenAI(api_key=self.api_key, base_url=self.api_url)
 			responses = client.chat.completions.create(
 				model=modelselected,
@@ -494,14 +578,21 @@ class Worker(QThread):  ##使用另一个线程获取AI返回的信息，让用�
 
 			ai_response = ""
 			for chunk in responses:
+				if self._is_cancelled:
+					break
 				if len(chunk.choices) > 0 and chunk.choices[0].delta and chunk.choices[0].delta.content:
 					new_content = chunk.choices[0].delta.content
 					ai_response += new_content
 					word = new_content
 					self.textReady.emit(word)
-			self.conversation.append({"role": "assistant", "content": ai_response})
+			
+			if not self._is_cancelled:
+				self.conversation.append({"role": "assistant", "content": ai_response})
 		except Exception as e:
-			self.errorOccurred.emit(str(e))
+			if not self._is_cancelled:
+				self.errorOccurred.emit(str(e))
+		finally:
+			self.finished_signal.emit()
 
 
 if __name__ == '__main__':

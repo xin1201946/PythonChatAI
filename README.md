@@ -64,6 +64,8 @@
 | class MyWindow(QFrame)                | 程序主子页面         |
 | class SETTINGS(QFrame)                | 程序“设置”子页面     |
 | class Worker(QThread)                 | 跨线程实现访问OpenAI |
+| class PluginManager(QObject)          | 插件任务管理器       |
+| class PluginManagerUI(QFrame)         | 插件管理器UI界面     |
 
 | 函数（Function） | 说明                                       |
 | ---------------- | ------------------------------------------ |
@@ -124,11 +126,60 @@
 
 ### Worker类
 
-本类并不是子界面，本类用于实现与Open AI交互信息。
+本类并不是子界面，本类用于实现与Open AI交互信息。支持取消操作。
+
+| 函数    | 说明           |
+| ------- | -------------- |
+| cancel  | 请求取消任务   |
+| run     | 执行AI请求     |
+
+### PluginManager类（新增）
+
+本类用于管理插件的生命周期，支持异步加载、卸载和控制插件。
+
+| 函数                    | 说明                         |
+| ----------------------- | ---------------------------- |
+| load_plugins_async      | 异步加载所有插件             |
+| load_plugin_sync        | 同步加载单个插件             |
+| create_plugin_instance  | 创建插件实例                 |
+| unload_plugin           | 卸载插件                     |
+| reload_plugin           | 重新加载插件                 |
+| enable_plugin           | 启用插件                     |
+| disable_plugin          | 禁用插件                     |
+| is_plugin_enabled       | 检查插件是否启用             |
+| get_loaded_plugins      | 获取已加载的插件列表         |
+| get_enabled_plugins     | 获取已启用的插件列表         |
+| cleanup                 | 清理资源                     |
+
+### PluginManagerUI类（新增）
+
+本类提供插件管理的用户界面，可以查看、启用、禁用和重新加载插件。
 
 ## 插件加载
 
-本节重点解释插件加载。位于： Class Window > Function LoadPlugin。
+本节重点解释插件加载。
+
+> **注意**: `loadplugin()` 方法已弃用，现在使用 `PluginManager` 类进行插件管理。
+
+### 新的插件管理系统
+
+新版本使用 `PluginManager` 类异步加载插件，提高启动速度：
+
+```python
+# 初始化插件管理器
+self.plugin_manager = PluginManager('plugin', self)
+
+# 异步加载所有插件
+self.plugin_manager.load_plugins_async()
+
+# 插件加载完成后会触发信号
+self.plugin_manager.plugin_loaded.connect(self._on_plugin_loaded)
+self.plugin_manager.all_plugins_loaded.connect(self._on_all_plugins_loaded)
+```
+
+### 旧版加载方式（已弃用）
+
+位于： Class Window > Function LoadPlugin。
 
 这里贴上实现代码：
 
